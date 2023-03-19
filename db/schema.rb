@@ -10,11 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2023_03_19_110408) do
+ActiveRecord::Schema.define(version: 2023_03_19_131758) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "assignees", force: :cascade do |t|
-    t.integer "issue_id"
-    t.integer "user_id"
+    t.bigint "issue_id"
+    t.bigint "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["issue_id"], name: "index_assignees_on_issue_id"
@@ -23,8 +26,8 @@ ActiveRecord::Schema.define(version: 2023_03_19_110408) do
 
   create_table "branches", force: :cascade do |t|
     t.string "name"
-    t.integer "repository_id"
-    t.integer "parent_id"
+    t.bigint "repository_id"
+    t.bigint "parent_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["parent_id"], name: "index_branches_on_parent_id"
@@ -33,8 +36,8 @@ ActiveRecord::Schema.define(version: 2023_03_19_110408) do
 
   create_table "commits", force: :cascade do |t|
     t.string "message"
-    t.integer "branch_id"
-    t.integer "user_id"
+    t.bigint "branch_id"
+    t.bigint "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["branch_id"], name: "index_commits_on_branch_id"
@@ -42,28 +45,19 @@ ActiveRecord::Schema.define(version: 2023_03_19_110408) do
   end
 
   create_table "diffs", force: :cascade do |t|
-    t.integer "old_file_id"
-    t.integer "new_file_id"
+    t.bigint "old_object_id"
+    t.bigint "new_object_id"
     t.text "diff_content"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["new_file_id"], name: "index_diffs_on_new_file_id"
-    t.index ["old_file_id"], name: "index_diffs_on_old_file_id"
-  end
-
-  create_table "fileobjects", force: :cascade do |t|
-    t.integer "branch_id"
-    t.string "name"
-    t.text "content"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["branch_id"], name: "index_fileobjects_on_branch_id"
+    t.index ["new_object_id"], name: "index_diffs_on_new_object_id"
+    t.index ["old_object_id"], name: "index_diffs_on_old_object_id"
   end
 
   create_table "issues", force: :cascade do |t|
     t.string "title"
-    t.text "description"
-    t.integer "repository_id"
+    t.string "description"
+    t.bigint "repository_id"
     t.string "status"
     t.string "priority"
     t.datetime "created_at", precision: 6, null: false
@@ -71,10 +65,19 @@ ActiveRecord::Schema.define(version: 2023_03_19_110408) do
     t.index ["repository_id"], name: "index_issues_on_repository_id"
   end
 
+  create_table "objects", force: :cascade do |t|
+    t.bigint "branch_id"
+    t.string "name"
+    t.text "content"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["branch_id"], name: "index_objects_on_branch_id"
+  end
+
   create_table "repositories", force: :cascade do |t|
     t.string "name"
-    t.text "description"
-    t.integer "user_id"
+    t.string "description"
+    t.bigint "user_id"
     t.string "access_level"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -82,8 +85,8 @@ ActiveRecord::Schema.define(version: 2023_03_19_110408) do
   end
 
   create_table "repository_holder_teams", force: :cascade do |t|
-    t.integer "repository_id"
-    t.integer "team_id"
+    t.bigint "repository_id"
+    t.bigint "team_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["repository_id"], name: "index_repository_holder_teams_on_repository_id"
@@ -91,8 +94,8 @@ ActiveRecord::Schema.define(version: 2023_03_19_110408) do
   end
 
   create_table "team_members", force: :cascade do |t|
-    t.integer "user_id"
-    t.integer "team_id"
+    t.bigint "user_id"
+    t.bigint "team_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["team_id"], name: "index_team_members_on_team_id"
@@ -101,7 +104,7 @@ ActiveRecord::Schema.define(version: 2023_03_19_110408) do
 
   create_table "teams", force: :cascade do |t|
     t.string "name"
-    t.integer "owner_id"
+    t.bigint "owner_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["owner_id"], name: "index_teams_on_owner_id"
@@ -109,10 +112,16 @@ ActiveRecord::Schema.define(version: 2023_03_19_110408) do
 
   create_table "users", force: :cascade do |t|
     t.string "name"
-    t.string "email"
     t.string "password_digest"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
   add_foreign_key "assignees", "issues"
@@ -121,10 +130,10 @@ ActiveRecord::Schema.define(version: 2023_03_19_110408) do
   add_foreign_key "branches", "repositories"
   add_foreign_key "commits", "branches"
   add_foreign_key "commits", "users"
-  add_foreign_key "diffs", "files", column: "new_file_id"
-  add_foreign_key "diffs", "files", column: "old_file_id"
-  add_foreign_key "fileobjects", "branches"
+  add_foreign_key "diffs", "objects", column: "new_object_id"
+  add_foreign_key "diffs", "objects", column: "old_object_id"
   add_foreign_key "issues", "repositories"
+  add_foreign_key "objects", "branches"
   add_foreign_key "repositories", "users"
   add_foreign_key "repository_holder_teams", "repositories"
   add_foreign_key "repository_holder_teams", "teams"
