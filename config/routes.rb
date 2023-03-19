@@ -19,6 +19,7 @@ Rails.application.routes.draw do
   resources :repository_holder_teams
   resources :team_members
   resources :teams
+  # resources :sessions, only: %i(new create destroy)
 
   # ルートパスを設定
   root 'sessions#new'
