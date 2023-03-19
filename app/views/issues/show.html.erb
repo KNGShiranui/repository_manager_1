@@ -1,0 +1,18 @@
+<h1><%= @issue.title %></h1>
+<p><%= @issue.description %></p>
+
+<h2>Assignees</h2>
+<%= form_with(url: issue_assignees_path(@issue), method: :post) do |form| %>
+  <%= form.label :user_id, "Assign to:" %>
+  <%= form.collection_select :user_id, User.all, :id, :name, prompt: "Select user" %>
+  <%= form.submit "Assign" %>
+<% end %>
+
+<ul>
+  <% @issue.assignees.each do |assignee| %>
+    <li>
+      <%= assignee.user.name %>
+      <%= link_to "Remove", issue_assignee_path(@issue, assignee), method: :delete, data: { confirm: "Are you sure?" } %>
+    </li>
+  <% end %>
+</ul>

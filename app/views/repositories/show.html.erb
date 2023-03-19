@@ -1,0 +1,18 @@
+<h1><%= @repository.name %></h1>
+<p><%= @repository.description %></p>
+
+<h2>Branches</h2>
+<%= form_with(url: repository_branches_path(@repository), method: :post) do |form| %>
+  <%= form.label :name, "New Branch:" %>
+  <%= form.text_field :name %>
+  <%= form.submit "Create Branch" %>
+<% end %>
+
+<ul>
+  <% @repository.branches.each do |branch| %>
+    <li>
+      <%= link_to branch.name, repository_branch_path(@repository, branch) %>
+      <%= link_to "Delete", repository_branch_path(@repository, branch), method: :delete, data: { confirm: "Are you sure?" } %>
+    </li>
+  <% end %>
+</ul>

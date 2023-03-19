@@ -1,0 +1,15 @@
+<!-- app/views/repositories/show.html.erb -->
+
+<h1><%= @repository.name %></h1>
+<p><%= @repository.description %></p>
+
+<h2>Branches</h2>
+<ul>
+  <% @repository.branches.each do |branch| %>
+    <li>
+      <%= link_to branch.name, repository_branch_path(@repository, branch) %>
+    </li>
+  <% end %>
+</ul>
+
+<%= link_to 'New Branch', new_repository_branch_path(@repository) %>
